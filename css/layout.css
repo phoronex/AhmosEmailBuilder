@@ -1,0 +1,450 @@
+/* ============================================================
+   ARABIC TOP BAR
+   ============================================================ */
+.arabic-bar {
+    background: linear-gradient(135deg, #060c18 0%, #0b1322 50%, #060c18 100%);
+    border-bottom: 1px solid #1a2840;
+    padding: 20px 20px 9px 9px;
+    text-align: center;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.arabic-bar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 100%, rgba(79,124,255,0.1) 0%, transparent 65%);
+    pointer-events: none;
+}
+/* Line 1: Tasbih — سبحان الله وبحمده سبحان الله العظيم */
+.arabic-bar-tasbih {
+    font-family: 'Amiri', serif;
+    font-size: 20px;
+    color: #8fb3e8;
+    direction: rtl;
+    letter-spacing: 1.5px;
+    line-height: 1.3;
+    position: relative;
+    font-weight: 700;
+}
+/* Line 2: Salah — إن الله وملائكته يصلون... */
+.arabic-bar-salah {
+    font-family: 'Amiri', serif;
+    font-size: 16px;
+    color: #5a7aaa;
+    direction: rtl;
+    letter-spacing: 0.5px;
+    line-height: 1.5;
+    position: relative;
+    font-style: italic;
+}
+.arabic-bar-line {
+    display: block;
+}
+.arabic-bar-tasbih .adot {
+    color: #2e4878;
+    margin: 0 12px;
+    font-size: 11px;
+    vertical-align: middle;
+    opacity: 0.8;
+}
+/* Keep old class working if referenced elsewhere */
+.arabic-bar-text {
+    font-family: 'Amiri', serif;
+    font-size: 15.5px;
+    color: #7a9ed4;
+    direction: rtl;
+    letter-spacing: 1px;
+    line-height: 1;
+    position: relative;
+}
+.arabic-bar-text .adot {
+    color: #2e4878;
+    margin: 5px 12px;
+    font-size: 11px;
+    vertical-align: middle;
+    opacity: 0.8;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+header {
+    height: 46px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    gap: 12px;
+    flex-shrink: 0;
+    z-index: 100;
+}
+
+.header-logo, .logo-mark {
+    font-size: 18px;
+    margin-right: 4px;
+    flex-shrink: 0;
+}
+
+.header-brand h1, .app-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.2;
+}
+
+.header-brand p, .app-version {
+    font-size: 10px;
+    color: var(--text3);
+    line-height: 1;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    padding: 1px 5px;
+    border-radius: 3px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.save-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--success);
+    background: rgba(16, 185, 129, 0.1);
+    padding: 3px 8px;
+    border-radius: 20px;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+.save-badge i { font-size: 10px; }
+
+.save-status {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--success);
+    background: rgba(16, 185, 129, 0.1);
+    padding: 3px 8px;
+    border-radius: 20px;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+.save-status i { font-size: 10px; }
+
+.header-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.hbtn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    color: var(--text2);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+.hbtn:hover { background: var(--panel2); border-color: var(--accent); color: var(--text); }
+.hbtn.primary { background: var(--accent2); border-color: var(--accent); color: #fff; }
+.hbtn.primary:hover { background: var(--accent); }
+
+/* ============================================================
+   MAIN LAYOUT
+   ============================================================ */
+main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+aside {
+    width: var(--sidebar-w);
+    min-width: var(--sidebar-min);
+    max-width: var(--sidebar-max);
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex-shrink: 0;
+    position: relative;
+}
+
+#resize-handle {
+    position: absolute;
+    right: -3px;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    cursor: col-resize;
+    z-index: 50;
+    transition: background 0.15s;
+}
+#resize-handle:hover, #resize-handle.dragging { background: var(--accent); opacity: 0.5; }
+
+/* Tab navigation */
+.tab-bar {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 9px 4px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text3);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.tab-btn:hover  { color: var(--text2); background: var(--bg3); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); background: rgba(59,130,246,0.06); }
+
+/* Tab content */
+/* tab-content rules are below in the scroll areas section */
+
+/* ============================================================
+   ACCORDION SECTIONS
+   ============================================================ */
+.accordion {
+    border-bottom: 1px solid var(--border);
+}
+
+.accordion-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+}
+.accordion-header:hover { background: var(--panel2); }
+
+.accordion-header i:first-child {
+    color: var(--accent);
+    font-size: 12px;
+    width: 16px;
+    text-align: center;
+}
+.accordion-header span {
+    flex: 1;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.accordion-header .chevron { color: var(--text3); font-size: 10px; transition: transform 0.2s; }
+.accordion-body { display: none; padding: 12px; border-top: 1px solid var(--border); }
+.accordion.open .accordion-body { display: block; }
+.accordion.open .chevron { transform: rotate(180deg); }
+
+/* ============================================================
+   PREVIEW CONTAINER
+   ============================================================ */
+.preview-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg2);
+    min-width: 0;
+}
+
+.preview-toolbar {
+    height: 42px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.device-btns { display: flex; gap: 4px; }
+
+.dev-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text3);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.dev-btn:hover:not(.active) { color: var(--text2); }
+.dev-btn.active { background: rgba(59,130,246,0.12); border-color: var(--accent); color: var(--accent); }
+
+.preview-wrap {
+    flex: 1;
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    transition: background 0.3s;
+}
+.preview-wrap.dark-mode-preview { background: #111111; }
+.preview-wrap::-webkit-scrollbar { width: 6px; height: 6px; }
+.preview-wrap::-webkit-scrollbar-track { background: transparent; }
+.preview-wrap::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+#frame-wrap { width: 100%; transition: width 0.3s; }
+
+#frame {
+    width: 100%;
+    border: none;
+    display: block;
+    min-height: 400px;
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+    transition: filter 0.3s;
+}
+.dark-mode-preview #frame { background: #1c1c1e; }
+
+.dark-mode-btn {
+    display: flex; align-items: center; gap: 5px;
+    padding: 5px 10px;
+    background: none;
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    color: var(--text3);
+    font-size: 11px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s;
+}
+.dark-mode-btn:hover { border-color: #f59e0b; color: #f59e0b; }
+.dark-mode-btn.active { background: #1c1c24; border-color: #f59e0b; color: #f59e0b; }
+.dark-mode-btn .dm-moon { font-size: 13px; }
+
+.preview-footer {
+    height: 32px;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 16px;
+    font-size: 11px;
+    color: var(--text3);
+    flex-shrink: 0;
+}
+.pf-item { display: flex; align-items: center; gap: 5px; }
+.pf-item span { color: var(--text2); }
+
+/* ============================================================
+   MEDIA QUERIES — responsive sidebar & layout
+   ============================================================ */
+@media (max-width: 1100px) {
+    :root { --sidebar-w: 350px; }
+    .hbtn span { display: none; }
+    .hbtn { padding: 6px 8px; }
+}
+
+@media (max-width: 900px) {
+    :root { --sidebar-w: 280px; }
+    header { padding: 0 10px; gap: 8px; }
+    .app-name, .app-version { display: none; }
+}
+
+@media (max-width: 700px) {
+    body { overflow: auto; }
+    main { flex-direction: column; overflow: auto; }
+    aside { width: 100% !important; max-width: 100%; min-height: 300px; max-height: 50vh; border-right: none; border-bottom: 1px solid var(--border); }
+    .preview-container { min-height: 400px; }
+    .preview-wrap { padding: 10px; }
+    #resize-handle { display: none; }
+    .hbtn span { display: none; }
+    .dev-btn span { display: none; }
+}
+
+@media (max-width: 480px) {
+    .arabic-bar-tasbih { font-size: 14px; }
+    .arabic-bar-salah { font-size: 11px; }
+    header { height: auto; padding: 6px 10px; flex-wrap: wrap; gap: 6px; }
+    .header-right { width: 100%; justify-content: flex-end; }
+    .tab-bar .tab-btn { font-size: 10px; padding: 7px 2px; }
+}
+
+/* ============================================================
+   TAB CONTENT + SCROLL — the entire sidebar flex chain
+   ============================================================ */
+
+/* Every tab: hidden by default */
+.tab-content {
+    display: none;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+.tab-content.active { display: flex; }
+
+/* .scroll-area: generic scrollable child within a tab */
+.scroll-area {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Layout tab scroll area */
+#tab-layout { overflow: hidden; }
+#tab-layout .scroll-area { flex: 1; min-height: 0; overflow-y: auto; }
+
+/* Templates tab — grid scrolls */
+#tab-templates { overflow: hidden; }
+#tab-templates .template-grid { flex: 1; min-height: 0; overflow-y: auto; }
+
+/* Settings tab scroll area */
+#tab-settings { overflow: hidden; }
+#tab-settings .scroll-area { flex: 1; min-height: 0; overflow-y: auto; }
+
+/* BLOCKS TAB — block-list scrolls, add-bar is pinned at bottom */
+#tab-content { overflow: hidden; }
+#block-list   { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; }
+.add-bar      { flex-shrink: 0; }

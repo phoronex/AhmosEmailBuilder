@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ahmos Email Builder Pro</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✉️</text></svg>" type="image/svg+xml">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/controls.css">
+    <link rel="stylesheet" href="css/blocks.css">
+    <link rel="stylesheet" href="css/modals.css">
+</head>
+<body>
+
+    <!-- ARABIC TOP BAR -->
+    <div class="arabic-bar">
+        <div class="arabic-bar-line arabic-bar-tasbih">
+            <span class="adot">✦</span>
+            سُبْحَانَ اللّٰهِ وَبِحَمْدِهِ
+            <span class="adot">·</span>
+            سُبْحَانَ اللّٰهِ الْعَظِيمِ
+            <span class="adot">✦</span>
+        </div>
+        <div class="arabic-bar-line arabic-bar-salah">
+            إِنَّ اللَّهَ وَمَلَائِكَتَهُ يُصَلُّونَ عَلَى النَّبِيِّ ۚ يَا أَيُّهَا الَّذِينَ آمَنُوا صَلُّوا عَلَيْهِ وَسَلِّمُوا تَسْلِيمًا
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header>
+        <div class="header-left">
+            <span class="logo-mark">✉️</span>
+            <span class="app-name">Ahmos Email Builder Pro</span>
+            <span class="app-version">v4.1</span>
+            <div id="save-badge" class="save-badge" style="display:none;">
+                <i class="fas fa-check-circle" style="font-size:10px;"></i>
+                <span>Saved</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <button class="hbtn" id="save-btn" title="Save (Ctrl+S)"><i class="fas fa-save"></i> Save</button>
+            <button class="hbtn" id="load-btn" title="Load Template"><i class="fas fa-folder-open"></i> Load</button>
+            <button class="hbtn" id="copy-html-btn" title="Copy HTML (Ctrl+C)"><i class="fas fa-code"></i> HTML</button>
+            <button class="hbtn primary" id="copy-visual-btn" title="Copy Visual"><i class="fas fa-copy"></i> Copy Email</button>
+            <button class="hbtn" id="export-btn" title="Download (Ctrl+E)"><i class="fas fa-download"></i> Export</button>
+        </div>
+    </header>
+
+    <main>
+        <!-- SIDEBAR -->
+        <aside id="sidebar">
+            <div id="resize-handle"></div>
+            <div class="tab-bar">
+                <button class="tab-btn active" data-tab="layout">
+                    <i class="fas fa-sliders-h"></i> Layout
+                </button>
+                <button class="tab-btn" data-tab="content">
+                    <i class="fas fa-th-large"></i> Blocks
+                </button>
+                <button class="tab-btn" data-tab="templates">
+                    <i class="fas fa-file-alt"></i> Templates
+                </button>
+                <button class="tab-btn" data-tab="settings">
+                    <i class="fas fa-cog"></i> Settings
+                </button>
+            </div>
+
+            <!-- LAYOUT TAB -->
+            <div id="tab-layout" class="tab-content active">
+                <div class="scroll-area">
+
+                    <!-- Global -->
+                    <div class="accordion open" id="acc-global">
+                        <div class="accordion-header" onclick="toggleAccordion('global')">
+                            <i class="fas fa-globe"></i>
+                            <span>Global</span>
+                            <i class="fas fa-chevron-down chevron"></i>
+                        </div>
+                        <div class="accordion-body" id="acc-body-global">
+                            <!-- populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Header -->
+                    <div class="accordion open" id="acc-header">
+                        <div class="accordion-header" onclick="toggleAccordion('header')">
+                            <i class="fas fa-heading"></i>
+                            <span>Header</span>
+                            <i class="fas fa-chevron-down chevron"></i>
+                        </div>
+                        <div class="accordion-body" id="acc-body-header">
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="accordion" id="acc-footer">
+                        <div class="accordion-header" onclick="toggleAccordion('footer')">
+                            <i class="fas fa-shoe-prints"></i>
+                            <span>Footer</span>
+                            <i class="fas fa-chevron-down chevron"></i>
+                        </div>
+                        <div class="accordion-body" id="acc-body-footer">
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- BLOCKS TAB -->
+            <div id="tab-content" class="tab-content">
+                <div id="block-list" class="scroll-area" style="flex:1;"></div>
+                <div class="add-bar" id="add-bar">
+                    <button class="add-btn" data-type="text"><i class="fas fa-font"></i> Text</button>
+                    <button class="add-btn" data-type="two-texts"><i class="fas fa-columns"></i> 2 Cols</button>
+                    <button class="add-btn" data-type="image"><i class="fas fa-image"></i> Image</button>
+                    <button class="add-btn" data-type="two-images"><i class="fas fa-images"></i> 2 Images</button>
+                    <button class="add-btn" data-type="button"><i class="fas fa-hand-pointer"></i> Button</button>
+                    <button class="add-btn" data-type="table"><i class="fas fa-table"></i> Table</button>
+                    <button class="add-btn" data-type="divider"><i class="fas fa-minus"></i> Divider</button>
+                    <button class="add-btn" data-type="spacer"><i class="fas fa-arrows-alt-v"></i> Spacer</button>
+                </div>
+            </div>
+
+            <!-- TEMPLATES TAB -->
+            <div id="tab-templates" class="tab-content">
+                <div class="template-grid" id="template-grid">
+                    <!-- populated by JS -->
+                </div>
+            </div>
+
+            <!-- SETTINGS TAB -->
+            <div id="tab-settings" class="tab-content">
+                <div class="scroll-area">
+                    <!-- RTL -->
+                    <div class="accordion" id="acc-rtl">
+                        <div class="accordion-header" onclick="toggleAccordion('rtl')">
+                            <i class="fas fa-language"></i>
+                            <span>RTL / Arabic</span>
+                            <i class="fas fa-chevron-down chevron"></i>
+                        </div>
+                        <div class="accordion-body" id="acc-body-rtl"></div>
+                    </div>
+                    <!-- Images -->
+                    <div class="accordion" id="acc-images">
+                        <div class="accordion-header" onclick="toggleAccordion('images')">
+                            <i class="fas fa-image"></i>
+                            <span>Image Settings</span>
+                            <i class="fas fa-chevron-down chevron"></i>
+                        </div>
+                        <div class="accordion-body" id="acc-body-images"></div>
+                    </div>
+                    <!-- Fixes -->
+                    <div class="accordion" id="acc-fixes">
+                        <div class="accordion-header" onclick="toggleAccordion('fixes')">
+                            <i class="fas fa-wrench"></i>
+                            <span>Email Client Fixes</span>
+                            <i class="fas fa-chevron-down chevron"></i>
+                        </div>
+                        <div class="accordion-body" id="acc-body-fixes"></div>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- PREVIEW -->
+        <div class="preview-container">
+            <div class="preview-toolbar">
+                <div class="device-btns">
+                    <button class="dev-btn active" data-device="desktop"><i class="fas fa-desktop"></i> Desktop</button>
+                    <button class="dev-btn" data-device="tablet"><i class="fas fa-tablet-alt"></i> Tablet</button>
+                    <button class="dev-btn" data-device="mobile"><i class="fas fa-mobile-alt"></i> Mobile</button>
+                </div>
+                <div style="width:1px;height:22px;background:var(--border);margin:0 6px;flex-shrink:0;"></div>
+                <button class="dark-mode-btn" id="dark-mode-btn" title="Simulate dark mode email client">
+                    <span class="dm-moon">🌙</span> Dark Mode
+                </button>
+                <div style="flex:1;"></div>
+                <button class="hbtn" id="refresh-btn" style="font-size:11px; padding:5px 10px;"><i class="fas fa-sync-alt"></i> Refresh</button>
+            </div>
+            <div class="preview-wrap">
+                <div id="frame-wrap">
+                    <iframe id="frame" title="Email Preview"></iframe>
+                </div>
+            </div>
+            <div class="preview-footer">
+                <div class="pf-item"><i class="fas fa-ruler-horizontal"></i> Width: <span id="info-width">600px</span></div>
+                <div class="pf-item"><i class="fas fa-desktop"></i> View: <span id="info-device">Desktop</span></div>
+                <div class="pf-item"><i class="fas fa-language"></i> Dir: <span id="info-dir">LTR</span></div>
+                <div style="flex:1;"></div>
+                <div class="pf-item" style="color: var(--text3);">© <span id="copyright-year-range"></span> AHMOS — Ahmos Email Builder Pro</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- TOAST -->
+    <div id="toast"><i id="toast-icon" class="fas fa-check-circle"></i><span id="toast-text"></span></div>
+
+    <!-- HIDDEN INPUTS -->
+    <input type="file" id="file-input" style="display:none;" accept=".json">
+
+    <!-- SCRIPTS -->
+    <script src="js/utils.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/templates.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/blocks.js"></script>
+    <script src="js/preview.js"></script>
+    <script src="js/export.js"></script>
+    <script src="js/main.js"></script>
+
+    <script>
+    // ── Sidebar resize ────────────────────────────
+    (function () {
+        const handle  = document.getElementById('resize-handle');
+        const sidebar = document.getElementById('sidebar');
+        if (!handle || !sidebar) return;
+        let dragging = false, startX = 0, startW = 0;
+        handle.addEventListener('mousedown', function (e) {
+            dragging = true;
+            startX   = e.clientX;
+            startW   = sidebar.offsetWidth;
+            handle.classList.add('dragging');
+            document.body.style.cursor     = 'col-resize';
+            document.body.style.userSelect = 'none';
+            e.preventDefault();
+        });
+        document.addEventListener('mousemove', function (e) {
+            if (!dragging) return;
+            var newW = Math.max(220, Math.min(600, startW + (e.clientX - startX)));
+            sidebar.style.width = newW + 'px';
+        });
+        document.addEventListener('mouseup', function () {
+            if (!dragging) return;
+            dragging = false;
+            handle.classList.remove('dragging');
+            document.body.style.cursor     = '';
+            document.body.style.userSelect = '';
+        });
+    })();
+
+    // ── Dark mode preview toggle ──────────────────
+    (function () {
+        const btn  = document.getElementById('dark-mode-btn');
+        const wrap = document.querySelector('.preview-wrap');
+        const frame = document.getElementById('frame');
+        if (!btn || !wrap) return;
+
+        var darkActive = false;
+
+        btn.addEventListener('click', function () {
+            darkActive = !darkActive;
+            btn.classList.toggle('active', darkActive);
+
+            if (darkActive) {
+                wrap.classList.add('dark-mode-preview');
+                btn.innerHTML = '<span class="dm-moon">☀️</span> Light Mode';
+                // Re-render with dark mode CSS injected
+                injectDarkModeCSS(frame, true);
+            } else {
+                wrap.classList.remove('dark-mode-preview');
+                btn.innerHTML = '<span class="dm-moon">🌙</span> Dark Mode';
+                injectDarkModeCSS(frame, false);
+            }
+        });
+
+        function injectDarkModeCSS(iframe, dark) {
+            if (!iframe || !iframe.contentDocument) return;
+            var doc = iframe.contentDocument;
+            var existing = doc.getElementById('dm-override');
+            if (existing) existing.remove();
+            if (!dark) return;
+
+            var style = doc.createElement('style');
+            style.id = 'dm-override';
+            // Simulate what Apple Mail / Gmail dark mode does:
+            // invert light backgrounds, brighten text
+            style.textContent = `
+                @media (prefers-color-scheme: dark) { body {} }
+                body, table, td, center {
+                    color-scheme: dark !important;
+                }
+                body {
+                    background-color: #1c1c1e !important;
+                }
+                /* Override white/near-white backgrounds */
+                [bgcolor="#ffffff"], [bgcolor="#f1f5f9"], [bgcolor="#eff6ff"],
+                [bgcolor="#f0fdf4"], [bgcolor="#faf5ff"], [bgcolor="#fef2f2"],
+                [bgcolor="#fff7ed"], [bgcolor="#f8fafc"], [bgcolor="#ecfeff"],
+                [bgcolor="#fdf2f8"], [bgcolor="#fefce8"], [bgcolor="#f7fee7"] {
+                    background-color: #1c1c1e !important;
+                }
+                table[style*="background-color:#ffffff"],
+                table[style*="background-color: #ffffff"],
+                td[style*="background-color:#ffffff"],
+                td[style*="background-color: #ffffff"] {
+                    background-color: #2c2c2e !important;
+                }
+                /* Lighten dark text for readability */
+                h1, h2, h3, p, td, span, li {
+                    color: #e8e8ed !important;
+                }
+                /* Keep coloured header/footer as-is (non-white bg) */
+            `;
+            doc.head.appendChild(style);
+        }
+
+        // Expose so Preview.render() can re-apply dark mode after re-render
+        window._darkModeActive = function() { return darkActive; };
+        window._applyDarkMode  = function() { if (darkActive) injectDarkModeCSS(frame, true); };
+    })();
+    (function () {
+        const el = document.getElementById('copyright-year-range');
+        if (!el) return;
+        var startYear = 2025;
+        var thisYear  = new Date().getFullYear();
+        el.textContent = thisYear > startYear ? startYear + ' – ' + thisYear : String(startYear);
+    })();
+    </script>
+</body>
+</html>
