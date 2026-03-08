@@ -222,25 +222,30 @@ const Export = {
             State.save();
 
             const payload = {
-                version:  '5.0',
-                savedAt:  new Date().toISOString(),
-                by:       'AHMOS Email Builder Pro',
+                version:    '5.0',
+                savedAt:    new Date().toISOString(),
+                by:         'AHMOS Email Builder Pro',
                 name:       meta.name,
                 desc:       meta.desc,
                 icon:       meta.icon,
                 thumbColor: meta.thumbColor,
-                state:    State.get()
+                state:      State.get()
             };
+
+            // ── Register in localStorage so it shows in My Templates immediately ──
+            const key = meta.name.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+            UI.registerUserTemplate(key, payload);
+
+            // ── Download the .json file ──
             const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
             const url  = URL.createObjectURL(blob);
             const a    = document.createElement('a');
             a.href     = url;
-            const safeName = meta.name.replace(/[^a-z0-9]/gi, '-').toLowerCase();
-            a.download = safeName + '.json';
+            a.download = key + '.json';
             a.click();
             URL.revokeObjectURL(url);
             document.body.removeChild(overlay);
-            Utils.showToast('Saved: ' + meta.name, 'success');
+            Utils.showToast('✅ Saved & added to My Templates: ' + meta.name, 'success');
         });
 
         // Focus name field
@@ -260,8 +265,8 @@ const Export = {
             try {
                 const data = JSON.parse(e.target.result);
                 if (data.state && data.state.global) {
+                    // ── Apply state into builder ──────────────────────────
                     State.data = data.state;
-                    // Restore top-level meta into state._meta so Save dialog pre-fills
                     State.data._meta = {
                         name:       data.name       || State.data._meta?.name || '',
                         desc:       data.desc       || State.data._meta?.desc || '',
@@ -271,7 +276,17 @@ const Export = {
                     State.save();
                     UI.rebuildAll();
                     Preview.render();
-                    Utils.showToast('Template loaded!', 'success');
+
+                    // ── Also register in Local Templates section ──────────
+                    const key = file.name.replace(/\.json$/i, '');
+                    const tpl = data.state;
+                    data.name       = data.name       || tpl.name       || key;
+                    data.desc       = data.desc       || tpl.desc       || '';
+                    data.icon       = data.icon       || tpl.icon       || UI.guessIcon(tpl);
+                    data.thumbColor = data.thumbColor || tpl.thumbColor || UI.guessThumbColor(tpl);
+                    UI.registerLocalTemplate(key, data);
+
+                    Utils.showToast('✅ Loaded & added to Local Templates: ' + data.name, 'success');
                 } else {
                     Utils.showToast('Invalid template file', 'error');
                 }
