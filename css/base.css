@@ -1,0 +1,60 @@
+/* ============================================================
+   DESIGN SYSTEM — CSS Custom Properties
+   ============================================================ */
+:root {
+    --bg:      #0d1117;
+    --bg2:     #161b22;
+    --bg3:     #1e2530;
+    --panel:   #13181f;
+    --panel2:  #1a2030;
+    --border:  #21293a;
+    --border2: #2d3748;
+    --text:    #e2e8f0;
+    --text2:   #94a3b8;
+    --text3:   #64748b;
+    --accent:  #3b82f6;
+    --accent2: #2563eb;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger:  #ef4444;
+    --radius:  5px;
+    --radius2: 8px;
+    --font:    'Segoe UI', system-ui, -apple-system, sans-serif;
+    --sidebar-min: 220px;
+    --sidebar-max: 600px;
+    --sidebar-w:   350px;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 13px; }
+
+body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+button {
+    font-family: var(--font);
+    cursor: pointer;
+    border: none;
+    background: none;
+    outline: none;
+}
+
+input, select, textarea {
+    font-family: var(--font);
+    outline: none;
+}
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
