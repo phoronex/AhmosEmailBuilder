@@ -581,41 +581,70 @@ const UI = {
 
     // ──────────────────────────────────────────────
     // TEMPLATE GRID
+    // My Templates first, then built-ins, then Clear All
+    // ──────────────────────────────────────────────
+    // Three sections: My Templates | Local Templates | Built-in
     // ──────────────────────────────────────────────
     buildTemplateGrid() {
         const grid = document.getElementById('template-grid');
         if (!grid) return;
 
-        const makeCard = (key, tpl, isUser) => `
-            <div class="tmpl-card" onclick="UI.loadTemplate('${key}',${isUser ? 'true' : 'false'})" title="${tpl.desc || ''}">
+        // ── card factories ────────────────────────────────────────────
+        const makeCard = (key, tpl, badge, storageKey) => `
+            <div class="tmpl-card tmpl-card-user" title="${tpl.desc || ''}">
+                <div class="tmpl-thumb" style="background:${tpl.thumbColor || '#2563eb'};"
+                     onclick="UI.loadFromRegistry('${storageKey}','${key}')">
+                    <i class="${tpl.icon || 'fas fa-envelope'}" style="font-size:20px;color:rgba(255,255,255,0.92);"></i>
+                </div>
+                <div class="tmpl-info" onclick="UI.loadFromRegistry('${storageKey}','${key}')" style="cursor:pointer;">
+                    <span class="tmpl-name">${tpl.name}</span>
+                    <span class="tmpl-desc">${tpl.desc || '\u00a0'}</span>
+                    <span class="tmpl-badge" style="${badge.style || ''}">${badge.label}</span>
+                </div>
+                <button class="tmpl-delete" onclick="UI.deleteFromRegistry('${storageKey}','${key}')" title="Remove">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>`;
+
+        const makeBuiltInCard = (key, tpl) => `
+            <div class="tmpl-card" onclick="UI.loadTemplate('${key}', false)" title="${tpl.desc || ''}">
                 <div class="tmpl-thumb" style="background:${tpl.thumbColor || '#2563eb'};">
-                    <i class="${tpl.icon || 'fas fa-envelope'}" style="font-size:22px;color:rgba(255,255,255,0.9);"></i>
+                    <i class="${tpl.icon || 'fas fa-envelope'}" style="font-size:20px;color:rgba(255,255,255,0.92);"></i>
                 </div>
                 <div class="tmpl-info">
                     <span class="tmpl-name">${tpl.name}</span>
                     <span class="tmpl-desc">${tpl.desc || ''}</span>
-                    ${isUser ? '<span class="tmpl-badge">My Template</span>' : ''}
                 </div>
             </div>`;
 
-        // Built-in templates
-        const builtIn = Object.entries(window.emailTemplates || {})
-            .map(([key, tpl]) => makeCard(key, tpl, false)).join('');
+        const makeSection = (title, entries, badge, storageKey, importHandler) => {
+            const importBtn = importHandler ? `
+                <label class="tmpl-import-btn" title="Import a .json file">
+                    <i class="fas fa-plus"></i> Import
+                    <input type="file" accept=".json" style="display:none;" onchange="${importHandler}">
+                </label>` : '';
+            const cards = entries.length
+                ? entries.map(([k, t]) => makeCard(k, t, badge, storageKey)).join('')
+                : `<div class="tmpl-empty"><i class="fas fa-folder-open"></i><span>No templates yet.</span></div>`;
+            return `<div class="tmpl-section-label">${title}${importBtn}</div>${cards}`;
+        };
 
-        // User templates (window.myTemplates set by loader)
-        const userCards = Object.entries(window.myTemplates || {})
-            .map(([key, tpl]) => makeCard(key, tpl, true)).join('');
+        // ── data sources ──────────────────────────────────────────────
+        const myEntries    = Object.entries(window.myTemplates    || {});
+        const localEntries = Object.entries(window.localTemplates || {});
+        const builtEntries = Object.entries(window.emailTemplates || {});
 
-        grid.innerHTML = builtIn + (userCards ? `
-            <div class="tmpl-section-label">
-                My Templates
-                <span class="tmpl-hint" title="Customize card: add name, desc, icon (FA class e.g. fas fa-star), thumbColor (#hex) to your JSON">
-                    <i class="fas fa-info-circle"></i>
-                </span>
-            </div>
-            ${userCards}
-        ` : '') + `
-            <div class="tmpl-card tmpl-card-clear" onclick="UI.clearAll()">
+        const builtInSection = builtEntries.length
+            ? `<div class="tmpl-section-label">Built-in</div>${builtEntries.map(([k,t]) => makeBuiltInCard(k,t)).join('')}`
+            : '';
+
+        grid.innerHTML =
+            makeSection('My Templates',    myEntries,
+                { label: 'My Template' }, 'myTemplates',   'UI.importUserTemplate(event)') +
+            makeSection('Local Templates', localEntries,
+                { label: 'Local', style: 'background:#7c3aed;' }, 'localTemplates', 'UI.importLocalTemplate(event)') +
+            builtInSection +
+            `<div class="tmpl-card tmpl-card-clear" onclick="UI.clearAll()">
                 <div class="tmpl-thumb" style="background:#ef4444;">
                     <i class="fas fa-trash-alt" style="font-size:20px;color:rgba(255,255,255,0.9);"></i>
                 </div>
@@ -623,37 +652,121 @@ const UI = {
                     <span class="tmpl-name">Clear All</span>
                     <span class="tmpl-desc">Start fresh</span>
                 </div>
-            </div>
-        `;
+            </div>`;
     },
 
-    // Load myTemplates JSON files from /myTemplates/ folder
-    async loadMyTemplates() {
-        window.myTemplates = {};
-        // Try fetching an index file first, then fallback
+    // ──────────────────────────────────────────────
+    // TEMPLATE REGISTRY — two localStorage buckets
+    //   "myTemplates"    = saved via Save dialog
+    //   "localTemplates" = loaded via Load button or Local Import
+    // ──────────────────────────────────────────────
+
+    // Parse a raw localStorage bucket into window[windowKey]
+    _loadBucket(storageKey, windowKey) {
+        window[windowKey] = {};
         try {
-            const resp = await fetch('myTemplates/index.json');
-            if (resp.ok) {
-                const index = await resp.json();
-                const files = Array.isArray(index) ? index : index.files || [];
-                await Promise.all(files.map(async (filename) => {
-                    try {
-                        const r = await fetch('myTemplates/' + filename);
-                        if (r.ok) {
-                            const data = await r.json();
-                            const tpl = data.state ? data.state : data;
-                            const key = filename.replace(/\.json$/i, '');
-                            // Ensure required fields
-                            tpl.name = tpl.name || key;
-                            tpl.icon = tpl.icon || this.guessIcon(tpl);
-                            tpl.thumbColor = tpl.thumbColor || this.guessThumbColor(tpl);
-                            window.myTemplates[key] = tpl;
-                        }
-                    } catch(e) { console.warn('Could not load template:', filename); }
-                }));
-            }
-        } catch(e) { /* no index.json — that's fine */ }
+            const raw = localStorage.getItem(storageKey);
+            if (!raw) return;
+            const stored = JSON.parse(raw);
+            Object.entries(stored).forEach(([key, data]) => {
+                const tpl = data.state ? data.state : data;
+                tpl.name       = data.name       || tpl.name       || key;
+                tpl.desc       = data.desc       || tpl.desc       || '';
+                tpl.icon       = data.icon       || tpl.icon       || this.guessIcon(tpl);
+                tpl.thumbColor = data.thumbColor || tpl.thumbColor || this.guessThumbColor(tpl);
+                window[windowKey][key] = tpl;
+            });
+        } catch(e) { console.warn('Could not load ' + storageKey, e); }
+    },
+
+    loadMyTemplates() {
+        this._loadBucket('myTemplates',    'myTemplates');
+        this._loadBucket('localTemplates', 'localTemplates');
         this.buildTemplateGrid();
+    },
+
+    // Generic: add/update one entry in a bucket then refresh
+    registerUserTemplate(key, payload) {
+        this._saveToBucket('myTemplates', key, payload);
+        this.loadMyTemplates();
+    },
+
+    registerLocalTemplate(key, payload) {
+        this._saveToBucket('localTemplates', key, payload);
+        this.loadMyTemplates();
+    },
+
+    _saveToBucket(storageKey, key, payload) {
+        try {
+            const raw = localStorage.getItem(storageKey);
+            const stored = raw ? JSON.parse(raw) : {};
+            stored[key] = payload;
+            localStorage.setItem(storageKey, JSON.stringify(stored));
+        } catch(e) { console.warn('Could not write to localStorage', e); }
+    },
+
+    // Generic delete from any bucket
+    deleteFromRegistry(storageKey, key) {
+        if (!confirm('Remove this template?')) return;
+        try {
+            const raw = localStorage.getItem(storageKey);
+            if (raw) {
+                const stored = JSON.parse(raw);
+                delete stored[key];
+                localStorage.setItem(storageKey, JSON.stringify(stored));
+            }
+        } catch(e) {}
+        this.loadMyTemplates();
+        Utils.showToast('Template removed', 'info');
+    },
+
+    // Generic load from any window bucket
+    loadFromRegistry(storageKey, key) {
+        const bucketKey = storageKey === 'myTemplates' ? 'myTemplates' : 'localTemplates';
+        const tpl = (window[bucketKey] || {})[key];
+        if (!tpl) return;
+        State.applyTemplate(tpl);
+        this.rebuildAll();
+        Preview.render();
+        Utils.showToast('Loaded: ' + tpl.name, 'success');
+        UI.showTab('content');
+    },
+
+    // Import into My Templates section
+    importUserTemplate(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        event.target.value = '';
+        this._importFile(file, 'myTemplates');
+    },
+
+    // Import into Local Templates section
+    importLocalTemplate(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        event.target.value = '';
+        this._importFile(file, 'localTemplates');
+    },
+
+    _importFile(file, storageKey) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+                const key  = file.name.replace(/\.json$/i, '');
+                const tpl  = data.state ? data.state : data;
+                data.name       = data.name       || tpl.name       || key;
+                data.desc       = data.desc       || tpl.desc       || '';
+                data.icon       = data.icon       || tpl.icon       || this.guessIcon(tpl);
+                data.thumbColor = data.thumbColor || tpl.thumbColor || this.guessThumbColor(tpl);
+                this._saveToBucket(storageKey, key, data);
+                this.loadMyTemplates();
+                Utils.showToast('Imported: ' + data.name, 'success');
+            } catch(err) {
+                Utils.showToast('Invalid template file', 'error');
+            }
+        };
+        reader.readAsText(file);
     },
 
     guessThumbColor(tpl) {
