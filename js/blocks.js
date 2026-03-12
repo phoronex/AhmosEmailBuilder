@@ -1,5 +1,5 @@
 // ============================================================
-// BLOCKS  — v4.2
+// BLOCKS  — v5.6
 // ============================================================
 
 const BLOCK_META = {
@@ -679,6 +679,90 @@ const Blocks = {
         if (imgItem) tryBlob(imgItem.getAsFile());
     },
 
+    // ── Sec image helpers — mirror of _applyImg/handleImageInputPaste for sec blocks ──
+
+    // URL typed/pasted as text → load image, detect dimensions, write to sec
+    updSecSrcFromInput(bi, sec, src) {
+        const blocks = State.get().blocks;
+        if (!blocks[bi]?.[sec]) return;
+        const obj = blocks[bi][sec];
+        obj.src = src;
+        const img = new Image();
+        img.onload = () => {
+            obj._nw = img.naturalWidth; obj._nh = img.naturalHeight;
+            obj.width = img.naturalWidth; obj.height = img.naturalHeight;
+            State.updateBlocks(blocks); this.render(); Preview.render();
+        };
+        img.onerror = () => { State.updateBlocks(blocks); Preview.render(); };
+        img.src = src;
+    },
+
+    // URL typed/pasted as text → load image, detect dimensions, write to images[ii]
+    updSecImgSrcFromInput(bi, ii, src) {
+        const blocks = State.get().blocks;
+        if (!blocks[bi]?.images?.[ii]) return;
+        const obj = blocks[bi].images[ii];
+        obj.src = src;
+        const img = new Image();
+        img.onload = () => {
+            obj._nw = img.naturalWidth; obj._nh = img.naturalHeight;
+            obj.width = img.naturalWidth; obj.height = img.naturalHeight;
+            State.updateBlocks(blocks); this.render(); Preview.render();
+        };
+        img.onerror = () => { State.updateBlocks(blocks); Preview.render(); };
+        img.src = src;
+    },
+
+    // Image file pasted via Ctrl+V into URL input — text-image section
+    handleSecPaste(e, bi, sec) {
+        const cd = e.clipboardData || window.clipboardData;
+        if (!cd) return;
+        const tryBlob = (file) => {
+            if (!file || !file.type.startsWith('image/')) return false;
+            e.preventDefault();
+            const reader = new FileReader();
+            reader.onload = ev => { this.updSecSrcFromInput(bi, sec, ev.target.result); };
+            reader.readAsDataURL(file);
+            return true;
+        };
+        if (cd.files && cd.files.length > 0 && tryBlob(cd.files[0])) return;
+        const imgItem = Array.from(cd.items||[]).find(it=>it.type.startsWith('image/'));
+        if (imgItem) tryBlob(imgItem.getAsFile());
+    },
+
+    // Image file pasted via Ctrl+V into URL input — text-2images section
+    handleSecImgPaste(e, bi, ii) {
+        const cd = e.clipboardData || window.clipboardData;
+        if (!cd) return;
+        const tryBlob = (file) => {
+            if (!file || !file.type.startsWith('image/')) return false;
+            e.preventDefault();
+            const reader = new FileReader();
+            reader.onload = ev => { this.updSecImgSrcFromInput(bi, ii, ev.target.result); };
+            reader.readAsDataURL(file);
+            return true;
+        };
+        if (cd.files && cd.files.length > 0 && tryBlob(cd.files[0])) return;
+        const imgItem = Array.from(cd.items||[]).find(it=>it.type.startsWith('image/'));
+        if (imgItem) tryBlob(imgItem.getAsFile());
+    },
+
+    // Remove image — text-image section
+    clearSecImg(bi, sec) {
+        const blocks = State.get().blocks;
+        const b = blocks[bi]; if (!b || !b[sec]) return;
+        b[sec].src = ''; b[sec].width = 1; b[sec].height = 1;
+        State.updateBlocks(blocks); this.render(); Preview.render();
+    },
+
+    // Remove image — text-2images section
+    clearSecImg2(bi, ii) {
+        const blocks = State.get().blocks;
+        const im = blocks[bi]?.images?.[ii]; if (!im) return;
+        im.src = ''; im.width = 1; im.height = 1;
+        State.updateBlocks(blocks); this.render(); Preview.render();
+    },
+
     // ── TEXT CONTROLS ─────────────────────────────
     // FIX #1: Text Color and Background are now STACKED (each .ctrl on its own row, no .row2 wrapper)
     // The root cause was wrapping both color inputs in <div class="row2"> which forced 2-column grid.
@@ -766,6 +850,9 @@ const Blocks = {
             <input type="text" value="${block.src}" placeholder="Or paste image URL / Ctrl+V"
                 oninput="Blocks.updSrcFromInput(${i},null,this.value)"
                 onpaste="Blocks.handleImageInputPaste(event,${i},null)" style="margin-top:6px;">
+            ${block.src ? `
+            <button type="button" class="ctrl-btn" style="margin-top:5px;" onclick="(()=>{const t='<img src=\\'${block.src.replace(/'/g,"\\'").replace(/\\/g,'\\\\')}\\'  alt=\\'${(block.alt||'').replace(/'/g,"\\'")}\\' width=\\'${block.width}\\' height=\\'${block.height}\\' border=\\'0\\'>';navigator.clipboard.writeText(t).then(()=>Utils.showToast('&lt;img&gt; tag copied','success'));})()"><i class="fas fa-code"></i> Copy &lt;img&gt; Tag</button>
+            <button type="button" class="ctrl-btn ctrl-btn-danger" onclick="Blocks.clearImg(${i})"><i class="fas fa-times"></i> Remove Image</button>` : ''}
         </div>
         <div class="ctrl"><label>Alt Text</label>
             <input type="text" value="${block.alt}" placeholder="Describe the image" oninput="Blocks.upd(${i},'alt',this.value)">
@@ -833,6 +920,9 @@ const Blocks = {
                     <input type="text" value="${img.src}" placeholder="Or paste URL / Ctrl+V"
                         oninput="Blocks.updSrcFromInput(${i},${idx},this.value)"
                         onpaste="Blocks.handleImageInputPaste(event,${i},${idx})" style="font-size:11px;margin-top:4px;">
+                    ${img.src ? `
+                    <button type="button" class="ctrl-btn" style="margin-top:4px;font-size:10px;" onclick="(()=>{const t='<img src=\\'${img.src.replace(/'/g,"\\'")}\\'  alt=\\'${(img.alt||'').replace(/'/g,"\\'")}\\' width=\\'${Math.max(1,img.width||1)}\\' height=\\'${Math.max(1,img.height||1)}\\' border=\\'0\\'>';navigator.clipboard.writeText(t).then(()=>Utils.showToast('&lt;img&gt; tag copied','success'));})()"><i class="fas fa-code"></i> Copy &lt;img&gt; Tag</button>
+                    <button type="button" class="ctrl-btn ctrl-btn-danger" style="margin-top:3px;font-size:10px;" onclick="Blocks.clearImg2(${i},${idx})"><i class="fas fa-times"></i> Remove Image</button>` : ''}
                 </div>
                 <div class="ctrl" style="margin-bottom:4px;"><label>Alt text</label>
                     <input type="text" value="${img.alt}" placeholder="Describe image"
@@ -1292,8 +1382,14 @@ const Blocks = {
             <button type="button" class="clipboard-paste-btn" onclick="Blocks.pasteSecClipboard(${i},'imgCol')" style="margin-top:5px;">
                 <i class="fas fa-clipboard"></i> Paste from Clipboard
             </button>
-            <input type="text" value="${ic.src||''}" placeholder="Or paste image URL" style="margin-top:5px;"
-                oninput="Blocks.updSec(${i},'imgCol','src',this.value)">
+            <div class="ctrl" style="margin-bottom:6px;"><label>Image URL</label>
+                <input type="text" value="${ic.src||''}" placeholder="Or paste image URL / Ctrl+V"
+                    oninput="Blocks.updSecSrcFromInput(${i},'imgCol',this.value)"
+                    onpaste="Blocks.handleSecPaste(event,${i},'imgCol')">
+                ${ic.src ? `
+                <button type="button" class="ctrl-btn" style="margin-top:5px;" onclick="(()=>{const t='<img src=\\'${(ic.src||'').replace(/'/g,"\\'").replace(/\\/g,'\\\\')}\\'  alt=\\'${(ic.alt||'').replace(/'/g,"\\'")}\\' width=\\'${Math.max(1,ic.width||1)}\\' height=\\'${Math.max(1,ic.height||1)}\\' border=\\'0\\'>';navigator.clipboard.writeText(t).then(()=>Utils.showToast('&lt;img&gt; tag copied','success'));})()"><i class="fas fa-code"></i> Copy &lt;img&gt; Tag</button>
+                <button type="button" class="ctrl-btn ctrl-btn-danger" onclick="Blocks.clearSecImg(${i},'imgCol')"><i class="fas fa-times"></i> Remove Image</button>` : ''}
+            </div>
             <div class="ctrl"><label>Alt Text</label>
                 <input type="text" value="${ic.alt||''}" oninput="Blocks.updSec(${i},'imgCol','alt',this.value)">
             </div>
@@ -1365,8 +1461,14 @@ const Blocks = {
                 <button type="button" class="clipboard-paste-btn" onclick="Blocks.pasteSecImgClipboard(${i},${ii})" style="margin-top:4px;font-size:10px;">
                     <i class="fas fa-clipboard"></i> Paste
                 </button>
-                <input type="text" value="${img.src||''}" placeholder="Or paste URL" style="margin-top:4px;font-size:11px;"
-                    oninput="Blocks.updSecImg(${i},${ii},'src',this.value)">
+                <div class="ctrl" style="margin-bottom:4px;"><label style="font-size:10px;">Image URL</label>
+                    <input type="text" value="${img.src||''}" placeholder="Or paste URL / Ctrl+V" style="font-size:11px;"
+                        oninput="Blocks.updSecImgSrcFromInput(${i},${ii},this.value)"
+                        onpaste="Blocks.handleSecImgPaste(event,${i},${ii})">
+                    ${img.src ? `
+                    <button type="button" class="ctrl-btn" style="margin-top:4px;font-size:10px;" onclick="(()=>{const t='<img src=\\'${(img.src||'').replace(/'/g,"\\'").replace(/\\/g,'\\\\')}\\'  alt=\\'${(img.alt||'').replace(/'/g,"\\'")}\\' width=\\'${Math.max(1,img.width||1)}\\' height=\\'${Math.max(1,img.height||1)}\\' border=\\'0\\'>';navigator.clipboard.writeText(t).then(()=>Utils.showToast('&lt;img&gt; tag copied','success'));})()"><i class="fas fa-code"></i> Copy &lt;img&gt; Tag</button>
+                    <button type="button" class="ctrl-btn ctrl-btn-danger" style="font-size:10px;" onclick="Blocks.clearSecImg2(${i},${ii})"><i class="fas fa-times"></i> Remove</button>` : ''}
+                </div>
                 <div class="ctrl" style="margin-bottom:4px;"><label>Alt</label>
                     <input type="text" value="${img.alt||''}" style="font-size:11px;" oninput="Blocks.updSecImg(${i},${ii},'alt',this.value)">
                 </div>
