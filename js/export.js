@@ -1,5 +1,5 @@
 // ============================================================
-// EXPORT
+// EXPORT  — v5.6
 // ============================================================
 
 const Export = {
@@ -228,7 +228,7 @@ const Export = {
             delete cleanState._meta;  // _meta is internal UI state, not email data
 
             const payload = {
-                version:    '5.5',
+                version:    '5.6',
                 savedAt:    new Date().toISOString(),
                 by:         'AHMOS Email Builder Pro',
                 name:       meta.name,
@@ -238,19 +238,22 @@ const Export = {
                 state:      cleanState
             };
 
-            // ── Register in localStorage (My Templates section) ──
-            const key = meta.name.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+            // key: ASCII-only slug for localStorage (object key must be stable ASCII)
+            // If name is fully non-ASCII (e.g. Arabic), fall back to timestamp
+            const asciiSlug = meta.name.replace(/[^a-z0-9]/gi, '-').toLowerCase().replace(/-+/g,'-').replace(/^-|-$/g,'');
+            const key = asciiSlug || ('template-' + Date.now());
             UI.registerUserTemplate(key, payload);
 
             // ── Also add to index.json in myTemplates folder (for folder-based loading) ──
             Export._updateFolderIndex(key + '.json');
 
-            // ── Download the .json file ──
+            // ── Download the .json file — use the actual name for the filename ──
             const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
             const url  = URL.createObjectURL(blob);
             const a    = document.createElement('a');
             a.href     = url;
-            a.download = key + '.json';
+            // Use the real name (supports Arabic & mixed) for the download filename
+            a.download = meta.name.trim() + '.json';
             a.click();
             URL.revokeObjectURL(url);
             document.body.removeChild(overlay);
