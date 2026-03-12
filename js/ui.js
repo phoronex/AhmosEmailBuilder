@@ -1,5 +1,5 @@
 // ============================================================
-// UI
+// UI  — v5.6
 // ============================================================
 
 const UI = {
@@ -238,16 +238,12 @@ const UI = {
                     <button type="button" class="clipboard-paste-btn" onclick="UI.pasteHeaderLogoClipboard()" style="margin-top:5px;">
                         <i class="fas fa-clipboard"></i> Paste from Clipboard
                     </button>
-                    <input type="text" id="h-logo-url" placeholder="Or paste image URL / Ctrl+V" value="${h.logo||''}"
+                    <input type="text" id="h-logo-url" placeholder="Or paste image URL / Ctrl+V" value="${h.logo}"
                         onpaste="UI.handleHeaderLogoPaste(event)">
-                    ${h.logo ? `<button class="ctrl-btn" style="margin-top:5px;color:#ef4444;" onclick="UI.clearHeaderLogo()"><i class="fas fa-times"></i> Remove Logo</button>` : ''}
+                    ${h.logo ? `<button class="ctrl-btn ctrl-btn-danger" style="margin-top:6px;" onclick="UI.clearHeaderLogo()"><i class="fas fa-times"></i> Remove Logo</button>` : ''}
                 </div>
 
                 <div id="h-logo-size-row" style="${h.logo ? '' : 'display:none;'}">
-                    <div class="ctrl"><label>Alt Text <span style="font-size:10px;font-weight:400;color:var(--text3);">(image tag)</span></label>
-                        <input type="text" id="h-logo-alt" value="${h.logoAlt||''}" placeholder="Company logo"
-                            oninput="UI._updHeader('logoAlt',this.value)">
-                    </div>
                     <div class="ctrl"><label>Logo Size</label>
                         <div class="img-size-row">
                             <div class="img-size-field">
@@ -267,25 +263,6 @@ const UI = {
                                     oninput="UI.updLogoWH('h',this.value)">
                                 <span class="img-size-unit">px</span>
                             </div>
-                        </div>
-                    </div>
-                    <div class="ctrl"><label>Border Radius <span style="font-size:10px;font-weight:400;color:var(--text3);">(px, 0 = none)</span></label>
-                        <div style="display:flex;gap:6px;align-items:center;">
-                            <input type="number" id="h-logo-radius" value="${h.logoBorderRadius||0}" min="0" max="200" style="flex:1;"
-                                oninput="UI._updHeader('logoBorderRadius',parseInt(this.value)||0)">
-                            <button class="mini-btn" onclick="UI._updHeader('logoBorderRadius',0);document.getElementById('h-logo-radius').value=0" title="Remove radius"><i class="fas fa-square"></i> None</button>
-                        </div>
-                    </div>
-                    <div class="ctrl"><label>Hyperlink <span style="font-size:10px;font-weight:400;color:var(--text3);">(opens in new tab)</span></label>
-                        <input type="text" id="h-logo-link" value="${h.logoLink||''}" placeholder="https://..."
-                            oninput="UI._updHeader('logoLink',this.value)">
-                    </div>
-                    <div class="ctrl"><label>Padding (px) — Top / Right / Bottom / Left</label>
-                        <div class="row4">
-                            <div><label class="sub-label">T</label><input type="number" value="${h.logoPaddingTop??0}" min="0" max="100" oninput="UI._updHeader('logoPaddingTop',parseInt(this.value)||0)"></div>
-                            <div><label class="sub-label">R</label><input type="number" value="${h.logoPaddingRight??0}" min="0" max="100" oninput="UI._updHeader('logoPaddingRight',parseInt(this.value)||0)"></div>
-                            <div><label class="sub-label">B</label><input type="number" value="${h.logoPaddingBottom??0}" min="0" max="100" oninput="UI._updHeader('logoPaddingBottom',parseInt(this.value)||0)"></div>
-                            <div><label class="sub-label">L</label><input type="number" value="${h.logoPaddingLeft??0}" min="0" max="100" oninput="UI._updHeader('logoPaddingLeft',parseInt(this.value)||0)"></div>
                         </div>
                     </div>
                 </div>
@@ -481,11 +458,6 @@ const UI = {
     clearHeaderLogo() {
         State.updateHeader({ logo: '' });
         this.buildHeaderPanel();
-        Preview.render();
-    },
-
-    _updHeader(prop, val) {
-        State.updateHeader({ [prop]: val });
         Preview.render();
     },
 
@@ -1440,13 +1412,19 @@ const UI = {
     setDevice(device) {
         const wrap = document.getElementById('frame-wrap');
         const deviceMap = { desktop: '100%', tablet: '768px', mobile: '390px' };
-        if (wrap) wrap.style.maxWidth = deviceMap[device] || '100%';
+        if (wrap) {
+            wrap.style.maxWidth = deviceMap[device] || '100%';
+            wrap.classList.remove('device-mobile', 'device-tablet', 'device-desktop');
+            wrap.classList.add('device-' + device);
+        }
 
         document.querySelectorAll('.dev-btn').forEach(b => b.classList.remove('active'));
         document.querySelector(`[data-device="${device}"]`)?.classList.add('active');
 
         const info = document.getElementById('info-device');
         if (info) info.textContent = device.charAt(0).toUpperCase() + device.slice(1);
+
+        if (window.Preview) Preview.render();
     }
 };
 
