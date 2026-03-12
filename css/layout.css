@@ -333,7 +333,57 @@ aside {
 .preview-wrap::-webkit-scrollbar-track { background: transparent; }
 .preview-wrap::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
 
-#frame-wrap { width: 100%; transition: width 0.3s; }
+#frame-wrap {
+    width: 100%;
+    transition: max-width 0.3s;
+    margin: 0 auto;
+}
+
+/* Mobile device shell — phone-shaped outline, NO overflow:hidden so iframe scrolls freely */
+#frame-wrap.device-mobile {
+    max-width: 390px;
+    border-radius: 32px;
+    border: 8px solid #1a1a1a;
+    box-shadow: 0 0 0 2px #3a3a3a, 0 24px 60px rgba(0,0,0,0.55);
+    padding-top: 22px; /* space for notch bar */
+    position: relative;
+}
+/* Notch — decorative only, sits at top of phone shell */
+#frame-wrap.device-mobile::before {
+    content: '';
+    position: absolute;
+    top: 4px; left: 50%; transform: translateX(-50%);
+    width: 72px; height: 14px;
+    background: #1a1a1a;
+    border-radius: 0 0 10px 10px;
+    z-index: 2;
+}
+#frame-wrap.device-mobile #frame {
+    border-radius: 0 0 22px 22px;
+    box-shadow: none;
+}
+
+/* Tablet shell */
+#frame-wrap.device-tablet {
+    max-width: 768px;
+    border-radius: 16px;
+    border: 7px solid #2a2a2a;
+    box-shadow: 0 0 0 2px #3a3a3a, 0 16px 48px rgba(0,0,0,0.4);
+}
+#frame-wrap.device-tablet #frame {
+    border-radius: 0;
+    box-shadow: none;
+}
+
+/* Desktop — no chrome */
+#frame-wrap.device-desktop {
+    border-radius: 0;
+    border: none;
+    padding-top: 0;
+    box-shadow: none;
+}
+#frame-wrap.device-desktop::before { display: none; }
+#frame-wrap.device-desktop #frame { border-radius: 4px; box-shadow: 0 8px 40px rgba(0,0,0,0.4); }
 
 #frame {
     width: 100%;
@@ -376,6 +426,14 @@ aside {
 .pf-item { display: flex; align-items: center; gap: 5px; }
 .pf-item span { color: var(--text2); }
 
+/* ── Danger variant of ctrl-btn ── */
+.ctrl-btn-danger {
+    color: #ef4444 !important;
+    border-color: rgba(239,68,68,0.3) !important;
+    margin-top: 4px;
+}
+.ctrl-btn-danger:hover { background: rgba(239,68,68,0.08) !important; border-color: #ef4444 !important; }
+
 /* ============================================================
    MEDIA QUERIES — responsive sidebar & layout
    ============================================================ */
@@ -395,8 +453,11 @@ aside {
     body { overflow: auto; }
     main { flex-direction: column; overflow: auto; }
     aside { width: 100% !important; max-width: 100%; min-height: 300px; max-height: 50vh; border-right: none; border-bottom: 1px solid var(--border); }
-    .preview-container { min-height: 400px; }
-    .preview-wrap { padding: 10px; }
+    .preview-container { min-height: 400px; flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+    .preview-wrap { padding: 10px; overflow: auto; }
+    /* On small screens device chrome can overflow — let preview-wrap scroll horizontally */
+    #frame-wrap.device-mobile,
+    #frame-wrap.device-tablet { margin: 0 auto; }
     #resize-handle { display: none; }
     .hbtn span { display: none; }
     .dev-btn span { display: none; }
