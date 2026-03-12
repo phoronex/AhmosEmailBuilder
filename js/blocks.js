@@ -747,21 +747,6 @@ const Blocks = {
         if (imgItem) tryBlob(imgItem.getAsFile());
     },
 
-    // Remove image — text-image section
-    clearSecImg(bi, sec) {
-        const blocks = State.get().blocks;
-        const b = blocks[bi]; if (!b || !b[sec]) return;
-        b[sec].src = ''; b[sec].width = 1; b[sec].height = 1;
-        State.updateBlocks(blocks); this.render(); Preview.render();
-    },
-
-    // Remove image — text-2images section
-    clearSecImg2(bi, ii) {
-        const blocks = State.get().blocks;
-        const im = blocks[bi]?.images?.[ii]; if (!im) return;
-        im.src = ''; im.width = 1; im.height = 1;
-        State.updateBlocks(blocks); this.render(); Preview.render();
-    },
 
     // ── TEXT CONTROLS ─────────────────────────────
     // FIX #1: Text Color and Background are now STACKED (each .ctrl on its own row, no .row2 wrapper)
@@ -2296,6 +2281,36 @@ const Blocks = {
     },
 
     updSrcFromInput(bi, idx, src) { this._applyImg(bi, idx, src); },
+
+    // Clear Image Functions
+    clearImg(bi) {
+        const blocks = State.get().blocks;
+        const b = blocks[bi]; if (!b) return;
+        b.src = ''; b.width = 1; b.height = 1;
+        State.updateBlocks(blocks); this.render(); Preview.render();
+    },
+    clearImg2(bi, idx) {
+        const blocks = State.get().blocks;
+        const im = blocks[bi]?.images?.[idx]; if (!im) return;
+        im.src = ''; im.width = 1; im.height = 1;
+        State.updateBlocks(blocks); this.render(); Preview.render();
+    },
+    
+    // Remove image — text-image section
+    clearSecImg(bi, sec) {
+        const blocks = State.get().blocks;
+        const b = blocks[bi]; if (!b || !b[sec]) return;
+        b[sec].src = ''; b[sec].width = 1; b[sec].height = 1;
+        State.updateBlocks(blocks); this.render(); Preview.render();
+    },
+
+    // Remove image — text-2images section
+    clearSecImg2(bi, ii) {
+        const blocks = State.get().blocks;
+        const im = blocks[bi]?.images?.[ii]; if (!im) return;
+        im.src = ''; im.width = 1; im.height = 1;
+        State.updateBlocks(blocks); this.render(); Preview.render();
+    },
 
     // Central function: set src + auto-read natural dims + clamp to maxWidth
     _applyImg(bi, idx, src) {
