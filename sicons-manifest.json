@@ -1,0 +1,14 @@
+{
+  "colored": {
+    "afaqy": "Afaqy.png"
+  },
+  "white": {
+    "afaqy": "Afaqy.png"
+  },
+  "images": {
+    "ahmos_ebanner": "Ahmos_eBanner.png"
+  },
+  "all": [
+    "afaqy"
+  ]
+}
